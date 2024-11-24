@@ -68,7 +68,6 @@
         const response = await fetch(`http://localhost:5000/conselhos/${quantidade}`);
         if (response.ok) {
           conselhos = await response.json();
-          console.log(conselhos)
           conselhos.forEach((conselho, index) => {
             conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho}</p>`;
           });
