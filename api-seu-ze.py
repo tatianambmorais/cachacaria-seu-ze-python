@@ -26,5 +26,6 @@ def obter_conselhos(quantidade):
         conselhos.append(conselho)
     return jsonify(conselhos)
 
+
 if __name__ == "__main__":
     app.run(debug=True)

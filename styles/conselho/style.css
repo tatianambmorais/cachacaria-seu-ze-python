@@ -1,0 +1,60 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+h1 {
+  text-align: center;
+  color: #bf4904;
+}
+
+.input-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+input[type="number"] {
+  padding: 10px;
+  font-size: 16px;
+  width: 60px;
+  text-align: center;
+  border: 2px solid #bf4904;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #732c02;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #bf4904;
+}
+
+.conselhos {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.conselhos p {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+#save-txt{
+    display: flex;
+    gap: 5px;
+    margin-top: 50px;
+    justify-content: center;
+    align-items: center;
+}

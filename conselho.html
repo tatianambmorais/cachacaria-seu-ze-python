@@ -4,60 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Conselhos do Seu Zé</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f0f0f0;
-    }
-
-    h1 {
-      text-align: center;
-      color: #BF4904;
-    }
-
-    .input-container {
-      text-align: center;
-      margin: 20px 0;
-    }
-
-    input[type="number"] {
-      padding: 10px;
-      font-size: 16px;
-      width: 60px;
-      text-align: center;
-      border: 2px solid #BF4904;
-      border-radius: 5px;
-      margin-right: 10px;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #732C02;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #BF4904;
-    }
-
-    .conselhos {
-      margin-top: 20px;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .conselhos p {
-      font-size: 18px;
-      line-height: 1.6;
-    }
-  </style>
+  <link rel="stylesheet" href="styles/conselho/style.css">
 </head>
 <body>
   <h1>Receba um Conselho do Seu Zé</h1>
@@ -68,16 +15,55 @@
   </div>
   <div id="conselhos" class="conselhos"></div>
 
+  <div id="save-txt">
+      <p>Deseja salvar seus conselhos?</p>
+      <button onclick="saveTxtButton()">Salvar</button>
+  </div>
   <script>
+    let conselhos = null
+
+    function saveTxtButton(){
+      if (!conselhos){
+        alert('Você precisa fazer a request')
+        return
+      }
+      let meusConselhos = ''
+      console.log(conselhos)
+      let counter = 0
+      conselhos.forEach((conselho, index) => {
+        meusConselhos += (conselho) 
+        if (index == (conselhos.length - 1)){
+            meusConselhos += ''
+        } else{
+            meusConselhos += ` 
+`
+
+          }
+      })
+      console.log(meusConselhos)
+
+      let mycontent = (meusConselhos)
+      console.log(mycontent)
+      mycontent = mycontent.replace('[', '')
+      mycontent = mycontent.replace(']', '')
+      const content = `Meus conselhos: \n \n` + mycontent
+      const blob = new Blob([content], {type: 'text/plain'})
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = 'meus-conselhos.txt'
+      link.click()
+    }
+
+
     async function obterConselhos() {
       const quantidade = document.getElementById('quantidade').value;
       const conselhosDiv = document.getElementById('conselhos');
       conselhosDiv.innerHTML = '';
-
       try {
         const response = await fetch(`http://localhost:5000/conselhos/${quantidade}`);
         if (response.ok) {
-          const conselhos = await response.json();
+          conselhos = await response.json();
+          console.log(conselhos)
           conselhos.forEach((conselho, index) => {
             conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho}</p>`;
           });
