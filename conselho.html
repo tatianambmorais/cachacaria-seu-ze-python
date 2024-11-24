@@ -21,15 +21,19 @@
   </div>
   <script>
     let conselhos = null
-
+    // função para salvar o arquivo.txt
     function saveTxtButton(){
       if (!conselhos){
-        alert('Você precisa fazer a request')
+        //caso botão seja acionado sem a requisição GET ser feita
+        alert('Você precisa pedir os conselhos primeiro!')
         return
       }
+
+      
+      //inicializando contador
       let meusConselhos = ''
-      console.log(conselhos)
       let counter = 0
+      //passeia pelo array de conselhos e estiliza a mensagem que entrará no arquivo.txt
       conselhos.forEach((conselho, index) => {
         meusConselhos += (conselho) 
         if (index == (conselhos.length - 1)){
@@ -40,13 +44,14 @@
 
           }
       })
-      console.log(meusConselhos)
 
       let mycontent = (meusConselhos)
-      console.log(mycontent)
+      //retira as chaves padrão provindas da API
       mycontent = mycontent.replace('[', '')
       mycontent = mycontent.replace(']', '')
       const content = `Meus conselhos: \n \n` + mycontent
+
+      //cria o arquivo.txt
       const blob = new Blob([content], {type: 'text/plain'})
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
