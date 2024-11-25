@@ -90,26 +90,27 @@
         }
       }
 
-      async function obterConselhos() {
-        const quantidade = document.getElementById("quantidade").value;
-        const conselhosDiv = document.getElementById("conselhos");
-        conselhosDiv.innerHTML = "";
-        try {
-          const response = await fetch(
-            `http://localhost:5000/conselhos/${quantidade}`
-          );
-          if (response.ok) {
-            conselhos = await response.json();
-            conselhos.forEach((conselho, index) => {
-              conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho}</p>`;
-            });
-          } else {
-            conselhosDiv.innerHTML += `<p>Não foi possível obter conselhos.</p>`;
-          }
-        } catch (error) {
-          conselhosDiv.innerHTML += `<p>Erro ao acessar o backend: ${error.message}</p>`;
+    async function obterConselhos() {
+      const quantidade = document.getElementById("quantidade").value;
+      const conselhosDiv = document.getElementById("conselhos");
+      conselhosDiv.innerHTML = "";
+      try {
+        const response = await fetch(
+          `http://localhost:5000/conselhos/${quantidade}`
+        );
+        if (response.ok) {
+          conselhos = await response.json();
+          console.log(conselhos)
+          conselhos.forEach((conselho, index) => {
+            conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho}</p>`;
+          });
+        } else {
+          conselhosDiv.innerHTML += `<p>Não foi possível obter conselhos.</p>`;
         }
+      } catch (error) {
+        conselhosDiv.innerHTML += `<p>Erro ao acessar o backend: ${error.message}</p>`;
       }
-    </script>
-  </body>
+    }
+  </script>
+</body>
 </html>
