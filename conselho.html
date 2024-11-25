@@ -65,6 +65,11 @@
 
       //função para traduzir o texto
       async function sendTextToTranslateFunction() {
+        if (!conselhos) {
+          //caso botão seja acionado sem a requisição GET ser feita
+          alert("Você precisa pedir os conselhos primeiro!");
+          return;
+        }
         const conselhosDiv = document.getElementById("conselhos");
         conselhosDiv.innerHTML = "";
         try {
