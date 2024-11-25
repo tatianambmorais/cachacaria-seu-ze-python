@@ -1,9 +1,35 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
+from deep_translator import GoogleTranslator
 
 app = Flask(__name__)
 CORS(app) 
+
+
+def translate(texts):
+    "Função para traduzir texto"
+    try:
+        texto_processado = [GoogleTranslator(source='en', target='pt').translate(texto) for texto in texts]
+        return texto_processado
+    except Exception as e:
+        return f"Erro encontrado: {e}"
+
+
+@app.route('/translate', methods=['POST'])
+def translate_my_text():
+    "Endpoint para traduzir o texto"
+    dados = request.json
+    texto = dados.get('texto')
+    # caso o texto não seja passado
+    if not texto:
+        return jsonify({"erro": "Ocorreu um erro na análise do texto. Tente novamente mais tarde"})
+    else:
+        textos = translate(texto)
+        return jsonify(textos)
+        
+    
+
 
 def obter_conselho():
     """Função para buscar um conselho da API."""

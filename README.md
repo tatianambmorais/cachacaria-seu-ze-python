@@ -34,7 +34,7 @@ Linux/MacOS: source venv/bin/activate
 
 3. Instale as dependências:
 pip install flask flask-cors requests
-
+pip install deep-translator
 4. Uso
 Para iniciar o servidor Flask, execute o comando:
 python api-seu-ze.py

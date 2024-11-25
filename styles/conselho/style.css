@@ -51,10 +51,11 @@ button:hover {
   line-height: 1.6;
 }
 
-#save-txt{
+.formated-div{
     display: flex;
     gap: 5px;
     margin-top: 50px;
     justify-content: center;
     align-items: center;
 }
+

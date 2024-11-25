@@ -1,84 +1,115 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conselhos do Seu Zé</title>
-  <link rel="stylesheet" href="styles/conselho/style.css">
-</head>
-<body>
-  <h1>Receba um Conselho do Seu Zé</h1>
-  <div class="input-container">
-    <label for="quantidade">Quantos conselhos você quer? </label>
-    <input type="number" id="quantidade" min="1" value="1">
-    <button onclick="obterConselhos()">Receber Conselhos</button>
-  </div>
-  <div id="conselhos" class="conselhos"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conselhos do Seu Zé</title>
+    <link rel="stylesheet" href="styles/conselho/style.css" />
+  </head>
+  <body>
+    <h1>Receba um Conselho do Seu Zé</h1>
+    <div class="input-container">
+      <label for="quantidade">Quantos conselhos você quer? </label>
+      <input type="number" id="quantidade" min="1" value="1" />
+      <button onclick="obterConselhos()">Receber Conselhos</button>
+    </div>
+    <div id="conselhos" class="conselhos"></div>
 
-  <div id="save-txt">
+    <div class="formated-div">
+      <p>Deseja traduzir os conselhos?</p>
+      <button onclick="sendTextToTranslateFunction()">Traduzir</button>
+    </div>
+
+    <div class="formated-div">
       <p>Deseja salvar seus conselhos?</p>
       <button onclick="saveTxtButton()">Salvar</button>
-  </div>
-  <script>
-    let conselhos = null
-    // função para salvar o arquivo.txt
-    function saveTxtButton(){
-      if (!conselhos){
-        //caso botão seja acionado sem a requisição GET ser feita
-        alert('Você precisa pedir os conselhos primeiro!')
-        return
-      }
+    </div>
 
-      
-      //inicializando contador
-      let meusConselhos = ''
-      let counter = 0
-      //passeia pelo array de conselhos e estiliza a mensagem que entrará no arquivo.txt
-      conselhos.forEach((conselho, index) => {
-        meusConselhos += (conselho) 
-        if (index == (conselhos.length - 1)){
-            meusConselhos += ''
-        } else{
-            meusConselhos += ` 
-`
-
-          }
-      })
-
-      let mycontent = meusConselhos
-      //retira as chaves padrão provindas da API
-      mycontent = mycontent.replace('[', '')
-      mycontent = mycontent.replace(']', '')
-      const content = `Meus conselhos: \n \n` + mycontent
-
-      //cria o arquivo.txt
-      const blob = new Blob([content], {type: 'text/plain'})
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.download = 'meus-conselhos.txt'
-      link.click()
-    }
-
-
-    async function obterConselhos() {
-      const quantidade = document.getElementById('quantidade').value;
-      const conselhosDiv = document.getElementById('conselhos');
-      conselhosDiv.innerHTML = '';
-      try {
-        const response = await fetch(`http://localhost:5000/conselhos/${quantidade}`);
-        if (response.ok) {
-          conselhos = await response.json();
-          console.log(conselhos)
-          conselhos.forEach((conselho, index) => {
-            conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho}</p>`;
-          });
-        } else {
-          conselhosDiv.innerHTML += `<p>Não foi possível obter conselhos.</p>`;
+    <script>
+      // introduz a variável de conselhos
+      let conselhos = null;
+      // função para salvar o arquivo.txt
+      function saveTxtButton() {
+        if (!conselhos) {
+          //caso botão seja acionado sem a requisição GET ser feita
+          alert("Você precisa pedir os conselhos primeiro!");
+          return;
         }
-      } catch (error) {
-        conselhosDiv.innerHTML += `<p>Erro ao acessar o backend: ${error.message}</p>`;
+        //inicializando contador
+        let meusConselhos = "";
+        let counter = 0;
+        //passeia pelo array de conselhos e incrementa a mensagem que entrará no arquivo.txt
+        conselhos.forEach((conselho, index) => {
+          meusConselhos += conselho;
+          if (index == conselhos.length - 1) {
+            meusConselhos += "";
+          } else {
+            //condicional para pular a linha caso a repetição ainda não chegou no final
+            meusConselhos += ` 
+`;
+          }
+        });
+        let mycontent = meusConselhos;
+        //retira as chaves padrão provindas da API
+        mycontent = mycontent.replace("[", "");
+        mycontent = mycontent.replace("]", "");
+        //Estiliza o conteúdo
+        const content = `Meus conselhos: \n \n` + mycontent;
+        //cria o arquivo.txt
+        const blob = new Blob([content], { type: "text/plain" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "meus-conselhos.txt";
+        link.click();
       }
-    }
-  </script>
-</body>
+
+      //função para traduzir o texto
+      async function sendTextToTranslateFunction() {
+        const conselhosDiv = document.getElementById("conselhos");
+        conselhosDiv.innerHTML = "";
+        try {
+          //faz uma requisição POST, enviando os conselhos
+          const response = await fetch(`http://localhost:5000/translate`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ texto: conselhos }),
+          });
+          //mostra no frontend o resultado
+          if (response.ok) {
+            conselhos = await response.json();
+            conselhos.forEach((conselho, index) => {
+              conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho}</p>`;
+            });
+          } else {
+            conselhosDiv.innerHTML += `<p>Não conseguimos traduzir seu conselho.</p>`;
+          }
+        } catch (error) {
+          conselhosDiv.innerHTML += `<p>Erro ao acessar o backend: ${error.message}</p>`;
+        }
+      }
+
+      async function obterConselhos() {
+        const quantidade = document.getElementById("quantidade").value;
+        const conselhosDiv = document.getElementById("conselhos");
+        conselhosDiv.innerHTML = "";
+        try {
+          const response = await fetch(
+            `http://localhost:5000/conselhos/${quantidade}`
+          );
+          if (response.ok) {
+            conselhos = await response.json();
+            conselhos.forEach((conselho, index) => {
+              conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho}</p>`;
+            });
+          } else {
+            conselhosDiv.innerHTML += `<p>Não foi possível obter conselhos.</p>`;
+          }
+        } catch (error) {
+          conselhosDiv.innerHTML += `<p>Erro ao acessar o backend: ${error.message}</p>`;
+        }
+      }
+    </script>
+  </body>
 </html>
