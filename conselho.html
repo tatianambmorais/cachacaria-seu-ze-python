@@ -40,7 +40,7 @@
         let counter = 0;
         //passeia pelo array de conselhos e incrementa a mensagem que entrará no arquivo.txt
         conselhos.forEach((conselho, index) => {
-          meusConselhos += conselho;
+          meusConselhos += `ID: ${conselho.id} - Conselho: ${conselho.advice}`;
           if (index == conselhos.length - 1) {
             meusConselhos += "";
           } else {
@@ -65,6 +65,11 @@
 
       //função para traduzir o texto
       async function sendTextToTranslateFunction() {
+        if (!conselhos) {
+          //caso botão seja acionado sem a requisição GET ser feita
+          alert("Você precisa pedir os conselhos primeiro!");
+          return;
+        }
         const conselhosDiv = document.getElementById("conselhos");
         conselhosDiv.innerHTML = "";
         try {
@@ -80,7 +85,7 @@
           if (response.ok) {
             conselhos = await response.json();
             conselhos.forEach((conselho, index) => {
-              conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho}</p>`;
+              conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho.advice}</p>`;
             });
           } else {
             conselhosDiv.innerHTML += `<p>Não conseguimos traduzir seu conselho.</p>`;
@@ -100,9 +105,9 @@
         );
         if (response.ok) {
           conselhos = await response.json();
-          console.log(conselhos)
           conselhos.forEach((conselho, index) => {
-            conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho}</p>`;
+            
+            conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho.advice}</p>`;
           });
         } else {
           conselhosDiv.innerHTML += `<p>Não foi possível obter conselhos.</p>`;
