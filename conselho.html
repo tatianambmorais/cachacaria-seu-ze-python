@@ -20,60 +20,105 @@
       <button onclick="sendTextToTranslateFunction()">Traduzir</button>
     </div>
 
-    <div class="formated-div">
+    <div class="formated-div" id="save">
       <p>Deseja salvar seus conselhos?</p>
-      <button onclick="saveTxtButton()">Salvar</button>
+      <button onclick="saveTxtButton('pt-br')">Salvar em português</button>
+      <button onclick="saveTxtButton('en')">Salvar em inglês</button>
     </div>
 
     <script>
       // introduz a variável de conselhos
       let conselhos = null;
-      // função para salvar o arquivo.txt
-      function saveTxtButton() {
+      //variavel que guarda o conselho sem tradução
+      let conselhosOriginal = null;
+      //variavel que guarda o conselho com tradução
+      let conselhoTranslated = null;
+      // função para salvar o arquivo.txt. Recebe o parametro da linguagem escolhida pelo usuário
+      async function saveTxtButton(language) {
         if (!conselhos) {
           //caso botão seja acionado sem a requisição GET ser feita
           alert("Você precisa pedir os conselhos primeiro!");
           return;
         }
-        //inicializando contador
+
+        //inicializando variavel vazia para estilizar os conselhos no .txt
         let meusConselhos = "";
-        let counter = 0;
-        //passeia pelo array de conselhos e incrementa a mensagem que entrará no arquivo.txt
-        conselhos.forEach((conselho, index) => {
-          meusConselhos += `ID: ${conselho.id} - Conselho: ${conselho.advice}`;
-          if (index == conselhos.length - 1) {
-            meusConselhos += "";
-          } else {
-            //condicional para pular a linha caso a repetição ainda não chegou no final
-            meusConselhos += ` 
+        if (language == "en") {
+          conselhosOriginal.forEach((conselho, index) => {
+            meusConselhos += `ID: ${conselho.id} - Advice: ${conselho.advice}`;
+            if (index == conselhos.length - 1) {
+              meusConselhos += "";
+            } else {
+              //condicional para pular a linha caso a repetição ainda não chegou no final
+              meusConselhos += ` 
 `;
+            }
+          });
+          let mycontent = meusConselhos;
+          mycontent = mycontent.replace("[", "");
+          mycontent = mycontent.replace("]", "");
+          //Estiliza o conteúdo
+          const content = `My advices: \n \n` + mycontent;
+          //cria o arquivo.txt
+          const blob = new Blob([content], { type: "text/plain" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "my-advices.txt";
+          link.click();
+        } else { //se o parametro passado por 'pt-br', ou seja, portugues
+          if (conselhoTranslated) { //se a variavel ja foi inicializada (ou seja, se o usuario já solicitou a tradução)
+            conselhoTranslated.forEach((conselho, index) => {
+              meusConselhos += `ID: ${conselho.id} - Conselho: ${conselho.advice}`;
+              if (index == conselhos.length - 1) {
+                meusConselhos += "";
+              } else {
+                //condicional para pular a linha caso a repetição ainda não chegou no final
+                meusConselhos += ` 
+`;
+              }
+            });
+          } else { 
+            //se o usuario nao solicitou a tradução
+            //espere a função (uso do parametro para impedir que escreva no HTML)
+            //await pois a função demora um tempo
+            await sendTextToTranslateFunction(true); 
+            conselhoTranslated.forEach((conselho, index) => {
+              meusConselhos += `ID: ${conselho.id} - Conselho: ${conselho.advice}`;
+              if (index == conselhos.length - 1) {
+                meusConselhos += "";
+              } else {
+                //condicional para pular a linha caso a repetição ainda não chegou no final
+                meusConselhos += ` 
+`;
+              }
+            });
           }
-        });
-        let mycontent = meusConselhos;
-        //retira as chaves padrão provindas da API
-        mycontent = mycontent.replace("[", "");
-        mycontent = mycontent.replace("]", "");
-        //Estiliza o conteúdo
-        const content = `Meus conselhos: \n \n` + mycontent;
-        //cria o arquivo.txt
-        const blob = new Blob([content], { type: "text/plain" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "meus-conselhos.txt";
-        link.click();
+          let mycontent = meusConselhos;
+          mycontent = mycontent.replace("[", "");
+          mycontent = mycontent.replace("]", "");
+          //Estiliza o conteúdo
+          const content = `Meus conselhos: \n \n` + mycontent;
+          //cria o arquivo.txt
+          const blob = new Blob([content], { type: "text/plain" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "meus-conselhos.txt";
+          link.click();
+        }
       }
 
       //função para traduzir o texto
-      async function sendTextToTranslateFunction() {
+      async function sendTextToTranslateFunction(isInAFunction = false) {
         if (!conselhos) {
           //caso botão seja acionado sem a requisição GET ser feita
           alert("Você precisa pedir os conselhos primeiro!");
           return;
         }
+
         const conselhosDiv = document.getElementById("conselhos");
-        conselhosDiv.innerHTML = "";
         try {
           //faz uma requisição POST, enviando os conselhos
+
           const response = await fetch(`http://localhost:5000/translate`, {
             method: "POST",
             headers: {
@@ -81,41 +126,58 @@
             },
             body: JSON.stringify({ texto: conselhos }),
           });
-          //mostra no frontend o resultado
-          if (response.ok) {
-            conselhos = await response.json();
-            conselhos.forEach((conselho, index) => {
-              conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho.advice}</p>`;
-            });
-          } else {
-            conselhosDiv.innerHTML += `<p>Não conseguimos traduzir seu conselho.</p>`;
+          if (isInAFunction == false) {
+            //caso a função tenha sido chamada pelo botão "traduzir"
+            conselhosDiv.innerHTML = "";
+            //mostra no frontend o resultado
+            if (response.ok) {
+              conselhos = await response.json();
+              conselhoTranslated = conselhos;
+              conselhos.forEach((conselho, index) => {
+                conselhosDiv.innerHTML += `<p>${index + 1}. ${
+                  conselho.advice
+                }</p>`;
+              });
+            } else {
+              conselhosDiv.innerHTML += `<p>Não conseguimos traduzir seu conselho.</p>`;
+            }
+          } else {//caso a função seja chamada pela função de Salvar em Português
+            if (response.ok) {
+              conselhos = await response.json();
+              //importante salvar em variável separada para não alterar o front-end que se conecta com a variável original "conselhos"
+              conselhoTranslated = conselhos;
+            } else {
+              conselhosDiv.innerHTML += `<p>Não conseguimos traduzir seu conselho.</p>`;
+            }
           }
         } catch (error) {
           conselhosDiv.innerHTML += `<p>Erro ao acessar o backend: ${error.message}</p>`;
         }
       }
 
-    async function obterConselhos() {
-      const quantidade = document.getElementById("quantidade").value;
-      const conselhosDiv = document.getElementById("conselhos");
-      conselhosDiv.innerHTML = "";
-      try {
-        const response = await fetch(
-          `http://localhost:5000/conselhos/${quantidade}`
-        );
-        if (response.ok) {
-          conselhos = await response.json();
-          conselhos.forEach((conselho, index) => {
-            
-            conselhosDiv.innerHTML += `<p>${index + 1}. ${conselho.advice}</p>`;
-          });
-        } else {
-          conselhosDiv.innerHTML += `<p>Não foi possível obter conselhos.</p>`;
+      async function obterConselhos() {
+        const quantidade = document.getElementById("quantidade").value;
+        const conselhosDiv = document.getElementById("conselhos");
+        conselhosDiv.innerHTML = "";
+        try {
+          const response = await fetch(
+            `http://localhost:5000/conselhos/${quantidade}`
+          );
+          if (response.ok) {
+            conselhos = await response.json();
+            conselhosOriginal = conselhos;
+            conselhos.forEach((conselho, index) => {
+              conselhosDiv.innerHTML += `<p>${index + 1}. ${
+                conselho.advice
+              }</p>`;
+            });
+          } else {
+            conselhosDiv.innerHTML += `<p>Não foi possível obter conselhos.</p>`;
+          }
+        } catch (error) {
+          conselhosDiv.innerHTML += `<p>Erro ao acessar o backend: ${error.message}</p>`;
         }
-      } catch (error) {
-        conselhosDiv.innerHTML += `<p>Erro ao acessar o backend: ${error.message}</p>`;
       }
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>
